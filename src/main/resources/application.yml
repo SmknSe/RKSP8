@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: composer
+
+composer:
+  services:
+    user-service: http://localhost:8080/user-service
+    order-service: http://localhost:8080/order-service
+  client:
+    id: 7srxgYG8u52QXDwatb
+    secret: rAVKKNBmMN64Bjvf8PcZv5YJgZSvZv4a
