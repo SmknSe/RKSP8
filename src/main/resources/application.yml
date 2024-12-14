@@ -9,3 +9,10 @@ composer:
   client:
     id: 7srxgYG8u52QXDwatb
     secret: rAVKKNBmMN64Bjvf8PcZv5YJgZSvZv4a
+
+server:
+  port:8081
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
