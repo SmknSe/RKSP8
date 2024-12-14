@@ -24,7 +24,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import static lombok.Lombok.checkNotNull;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
@@ -52,7 +54,12 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         checkNotNull(userRequest, "userRequest cannot be null");
         if (!StringUtils.hasText(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri())) {
-            OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_INFO_URI_ERROR_CODE, "Missing required UserInfo Uri in UserInfoEndpoint for Client Registration: " + userRequest.getClientRegistration().getRegistrationId(), null);
+            OAuth2Error oauth2Error = new OAuth2Error(
+                    MISSING_USER_INFO_URI_ERROR_CODE,
+                    "Missing required UserInfo Uri in UserInfoEndpoint for Client Registration: "
+                            + userRequest.getClientRegistration().getRegistrationId(),
+                    null
+            );
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
         }
 
@@ -61,13 +68,18 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
         if (!StringUtils.hasText(userNameAttributeName)) {
             OAuth2Error oauth2Error = new OAuth2Error(
                     MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
-                    "Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: " + registrationId, null);
+                    "Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: " + registrationId,
+                    null
+            );
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
         }
 
         ResponseEntity<Map<String, Object>> response;
         try {
-            response = this.restOperations.exchange(requestEntityConverter.convert(userRequest), PARAMETERIZED_RESPONSE_TYPE);
+            response = this.restOperations.exchange(
+                    Objects.requireNonNull(requestEntityConverter.convert(userRequest)),
+                    PARAMETERIZED_RESPONSE_TYPE
+            );
         } catch (OAuth2AuthorizationException ex) {
             OAuth2Error oauth2Error = ex.getError();
             StringBuilder errorDetails = new StringBuilder();
@@ -79,12 +91,18 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
                 errorDetails.append(", Error Description: ").append(oauth2Error.getDescription());
             }
             errorDetails.append("]");
-            oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
-                    "An error occurred while attempting to retrieve the UserInfo Resource: " + errorDetails, null);
+            oauth2Error = new OAuth2Error(
+                    INVALID_USER_INFO_RESPONSE_ERROR_CODE,
+                    "An error occurred while attempting to retrieve the UserInfo Resource: " + errorDetails,
+                    null
+            );
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
         } catch (RestClientException ex) {
-            OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
-                    "An error occurred while attempting to retrieve the UserInfo Resource: " + ex.getMessage(), null);
+            OAuth2Error oauth2Error = new OAuth2Error(
+                    INVALID_USER_INFO_RESPONSE_ERROR_CODE,
+                    "An error occurred while attempting to retrieve the UserInfo Resource: " + ex.getMessage(),
+                    null
+            );
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
         }
 
@@ -97,13 +115,9 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
             authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
         }
 
-        // ищем пользователя в нашей БД, либо создаем нового
-        // если пользователь не найден и система не подразумевает автоматической регистрации,
-        // необходимо сгенерировать тут исключение
-        log.info("123");
         log.info(userAttributes.toString());
 //        User user = findOrCreate(userAttributes);
-//        userAttributes.put(AuthUser.ID_ATTR, user.getId());
+        userAttributes.put(AuthUser.ID_ATTR, UUID.randomUUID());
         return new AuthUser(userNameAttributeName, userAttributes, authorities);
     }
 
