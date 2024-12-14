@@ -1,8 +1,6 @@
 package com.example.composer.configuration;
 
 import com.example.composer.model.AuthUser;
-import com.example.composer.model.User;
-import com.example.composer.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
@@ -26,10 +24,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
 import static lombok.Lombok.checkNotNull;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 
@@ -44,15 +40,11 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
 
     private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE = new ParameterizedTypeReference<Map<String, Object>>() {
     };
-
-    private final UserService userService;
-
     private final RestOperations restOperations;
 
     private final Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = new OAuth2UserRequestEntityConverter();
 
-    public AuthService(UserService userService) {
-        this.userService = requireNonNull(userService);
+    public AuthService() {
         this.restOperations = createRestTemplate();
     }
 
@@ -88,7 +80,7 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
             }
             errorDetails.append("]");
             oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
-                    "An error occurred while attempting to retrieve the UserInfo Resource: " + errorDetails.toString(), null);
+                    "An error occurred while attempting to retrieve the UserInfo Resource: " + errorDetails, null);
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
         } catch (RestClientException ex) {
             OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
@@ -108,24 +100,11 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
         // ищем пользователя в нашей БД, либо создаем нового
         // если пользователь не найден и система не подразумевает автоматической регистрации,
         // необходимо сгенерировать тут исключение
+        log.info("123");
         log.info(userAttributes.toString());
-        User user = findOrCreate(userAttributes);
-        userAttributes.put(AuthUser.ID_ATTR, user.getId());
+//        User user = findOrCreate(userAttributes);
+//        userAttributes.put(AuthUser.ID_ATTR, user.getId());
         return new AuthUser(userNameAttributeName, userAttributes, authorities);
-    }
-
-    private User findOrCreate(Map<String, Object> userAttributes) {
-        String login = (String) userAttributes.get("username");
-        String username = (String) userAttributes.get("display_name");
-
-        Optional<User> userOpt = userService.findByLogin(login);
-        if (!userOpt.isPresent()) {
-            User user = new User();
-            user.setLogin(login);
-            user.setName(username);
-            return userService.create(user);
-        }
-        return userOpt.get();
     }
 
     private RestTemplate createRestTemplate() {

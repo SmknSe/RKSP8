@@ -1,6 +1,5 @@
 package com.example.composer.configuration;
 
-import com.example.composer.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -43,9 +42,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Autowired
-    public AuthService oAuth2userService(UserService userService) {
-        return new AuthService(userService);
+    public AuthService oAuth2userService() {
+        return new AuthService();
     }
 
     @Bean
@@ -58,11 +56,11 @@ public class SecurityConfig {
     @EnableWebSecurity
     public static class AuthConfig {
 
-        private final AuthService userService;
+        private final AuthService authService;
 
         @Autowired
-        public AuthConfig(AuthService userService) {
-            this.userService = userService;
+        public AuthConfig(AuthService authService) {
+            this.authService = authService;
         }
 
         @Bean
@@ -72,7 +70,7 @@ public class SecurityConfig {
                             .anyRequest().authenticated()
                     )
                     .oauth2Login(oauth2Login -> oauth2Login
-                            .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint.userService(userService))
+                            .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint.userService(authService))
                     );
             return http.build();
         }
