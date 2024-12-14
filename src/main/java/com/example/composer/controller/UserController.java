@@ -1,6 +1,6 @@
 package com.example.composer.controller;
 
-import com.example.composer.api.UserServiceApi;
+import api.UserServiceApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;

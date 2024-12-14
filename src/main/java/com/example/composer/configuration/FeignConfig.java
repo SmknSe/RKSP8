@@ -1,7 +1,7 @@
 package com.example.composer.configuration;
 
-import com.example.composer.api.OrderServiceApi;
-import com.example.composer.api.UserServiceApi;
+import api.OrderServiceApi;
+import api.UserServiceApi;
 import feign.Feign;
 import feign.Logger;
 import feign.form.spring.SpringFormEncoder;
