@@ -1,51 +1,28 @@
 package com.example.composer.model;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
-
-/**
- * @author Nikolay Bondarchuk
- * @since 2020-04-05
- */
+@Builder
 public class AuthUser implements OAuth2User, UserDetails {
 
-    public static final String ID_ATTR = "id";
-
-    private final String nameAttributeKey;
-
-    private final Map<String, Object> attributes;
-
-    private final Set<GrantedAuthority> authorities;
-
-    public AuthUser(String nameAttributeKey, Map<String, Object> attributes, Collection<? extends GrantedAuthority> authorities) {
-        checkArgument(MapUtils.isNotEmpty(attributes), "attributes cannot be empty");
-        checkArgument(CollectionUtils.isNotEmpty(authorities), "authorities cannot be empty");
-        checkArgument(StringUtils.isNotBlank(nameAttributeKey), "nameAttributeKey cannot be empty");
-
-        validateAttributes(nameAttributeKey, attributes);
-
-        this.nameAttributeKey = nameAttributeKey;
-        this.attributes = unmodifiableMap(new LinkedHashMap<>(attributes));
-        this.authorities = unmodifiableSet(new LinkedHashSet<>(sortAuthorities(authorities)));
-    }
-
-    public Long getId() {
-        return getAttribute(ID_ATTR);
-    }
+    @Getter
+    private UUID id;
+    private String name;
+    private  Map<String, Object> attributes;
+    private Set<GrantedAuthority> authorities;
 
     @Override
     public String getName() {
-        return getAttribute(nameAttributeKey);
+        return name;
     }
 
     @Override
@@ -134,22 +111,5 @@ public class AuthUser implements OAuth2User, UserDetails {
         sb.append(getAttributes());
         sb.append("]");
         return sb.toString();
-    }
-
-    private void validateAttribute(String attrName, Map<String, Object> attributes) {
-        if (!attributes.containsKey(attrName)) {
-            throw new IllegalArgumentException("Missing " + attrName + " attribute in attributes");
-        }
-    }
-
-    private void validateAttributes(String nameAttributeKey, Map<String, Object> attributes) {
-        validateAttribute(ID_ATTR, attributes);
-        validateAttribute(nameAttributeKey, attributes);
-    }
-
-    private Set<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        SortedSet<GrantedAuthority> sortedAuthorities = new TreeSet<>(Comparator.comparing(GrantedAuthority::getAuthority));
-        sortedAuthorities.addAll(authorities);
-        return sortedAuthorities;
     }
 }

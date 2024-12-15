@@ -117,8 +117,12 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
 
         log.info(userAttributes.toString());
 //        User user = findOrCreate(userAttributes);
-        userAttributes.put(AuthUser.ID_ATTR, UUID.randomUUID());
-        return new AuthUser(userNameAttributeName, userAttributes, authorities);
+        return AuthUser.builder()
+                .id(UUID.randomUUID())
+                .name(userAttributes.get(userNameAttributeName).toString())
+                .attributes(userAttributes)
+                .authorities(authorities)
+                .build();
     }
 
     private RestTemplate createRestTemplate() {
