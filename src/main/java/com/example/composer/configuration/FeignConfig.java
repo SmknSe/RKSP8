@@ -1,5 +1,6 @@
 package com.example.composer.configuration;
 
+import api.ItemServiceApi;
 import api.OrderServiceApi;
 import api.UserServiceApi;
 import feign.Feign;
@@ -23,6 +24,8 @@ public class FeignConfig {
     protected String userServiceUrl;
     @Value(value = "${composer.services.order-service}")
     protected String orderServiceUrl;
+    @Value(value = "${composer.services.item-service}")
+    protected String itemServiceUrl;
 
     @Bean
     public UserServiceApi userServiceApi() {
@@ -40,5 +43,14 @@ public class FeignConfig {
                 .logger(new Slf4jLogger(UserServiceApi.class))
                 .logLevel(Logger.Level.FULL)
                 .target(OrderServiceApi.class, orderServiceUrl);
+    }
+
+    @Bean
+    public ItemServiceApi itemServiceApi() {
+        return Feign.builder()
+                .encoder(new SpringFormEncoder())
+                .logger(new Slf4jLogger(UserServiceApi.class))
+                .logLevel(Logger.Level.FULL)
+                .target(ItemServiceApi.class, itemServiceUrl);
     }
 }

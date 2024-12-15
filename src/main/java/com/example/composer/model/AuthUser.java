@@ -17,7 +17,7 @@ public class AuthUser implements OAuth2User, UserDetails {
     @Getter
     private UUID id;
     private String name;
-    private  Map<String, Object> attributes;
+    private Map<String, Object> attributes;
     private Set<GrantedAuthority> authorities;
 
     @Override
