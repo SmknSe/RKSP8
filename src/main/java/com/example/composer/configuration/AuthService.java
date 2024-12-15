@@ -1,7 +1,11 @@
 package com.example.composer.configuration;
 
 import com.example.composer.model.AuthUser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import model.AuthRequestDTO;
+import model.UserDTO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
@@ -116,13 +120,18 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
         }
 
         log.info(userAttributes.toString());
-//        User user = findOrCreate(userAttributes);
-        return AuthUser.builder()
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        var authUser = AuthUser.builder()
                 .id(UUID.randomUUID())
                 .name(userAttributes.get(userNameAttributeName).toString())
                 .attributes(userAttributes)
                 .authorities(authorities)
                 .build();
+        var requestDTO = objectMapper.convertValue(authUser, AuthRequestDTO.class);
+        log.info(requestDTO.toString());
+//        User user = findOrCreate(userAttributes);
+        return authUser;
     }
 
     private RestTemplate createRestTemplate() {
