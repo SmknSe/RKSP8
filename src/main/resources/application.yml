@@ -4,13 +4,15 @@ spring:
 
 composer:
   services:
-    user-service: http://user-service:8080/api
-    order-service: http://order-service:8080/api
+    user-service: http://localhost:8081/user-service
+    order-service: http://localhost:8080/order-service
     item-service: http://item-service:8080/api
   client:
     id: 7srxgYG8u52QXDwatb
     secret: rAVKKNBmMN64Bjvf8PcZv5YJgZSvZv4a
 
+server:
+  port:8081
 eureka:
   client:
     service-url:

@@ -1,11 +1,13 @@
 package com.example.composer.configuration;
 
+import api.UserServiceApi;
 import com.example.composer.model.AuthUser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import model.AuthRequestDTO;
 import model.UserDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
@@ -47,6 +49,9 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
     private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE = new ParameterizedTypeReference<Map<String, Object>>() {
     };
     private final RestOperations restOperations;
+
+    @Autowired
+    private UserServiceApi userServiceApi;
 
     private final Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = new OAuth2UserRequestEntityConverter();
 
@@ -130,7 +135,7 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
                 .build();
         var requestDTO = objectMapper.convertValue(authUser, AuthRequestDTO.class);
         log.info(requestDTO.toString());
-//        User user = findOrCreate(userAttributes);
+        userServiceApi.createOrGetUser(requestDTO);
         return authUser;
     }
 
