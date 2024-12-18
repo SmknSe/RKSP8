@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Feign;
 import feign.Logger;
 import feign.form.spring.SpringFormEncoder;
+import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.slf4j.Slf4jLogger;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +35,7 @@ public class FeignConfig {
     public UserServiceApi userServiceApi() {
         return Feign.builder()
                 .encoder(new JacksonEncoder(new ObjectMapper()))
+                .decoder(new JacksonDecoder(new ObjectMapper()))
                 .logger(new Slf4jLogger(UserServiceApi.class))
                 .logLevel(Logger.Level.FULL)
                 .target(UserServiceApi.class, userServiceUrl);
@@ -43,6 +45,7 @@ public class FeignConfig {
     public OrderServiceApi orderServiceApi() {
         return Feign.builder()
                 .encoder(new JacksonEncoder(new ObjectMapper()))
+                .decoder(new JacksonDecoder(new ObjectMapper()))
                 .logger(new Slf4jLogger(UserServiceApi.class))
                 .logLevel(Logger.Level.FULL)
                 .target(OrderServiceApi.class, orderServiceUrl);
@@ -52,6 +55,7 @@ public class FeignConfig {
     public ItemServiceApi itemServiceApi() {
         return Feign.builder()
                 .encoder(new JacksonEncoder(new ObjectMapper()))
+                .decoder(new JacksonDecoder(new ObjectMapper()))
                 .logger(new Slf4jLogger(UserServiceApi.class))
                 .logLevel(Logger.Level.FULL)
                 .target(ItemServiceApi.class, itemServiceUrl);
