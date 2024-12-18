@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import model.AuthRequestDTO;
-import model.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
@@ -124,17 +123,15 @@ public class AuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2U
             authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
         }
 
-        log.info(userAttributes.toString());
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         var authUser = AuthUser.builder()
-                .id(UUID.randomUUID())
+                .id(UUID.fromString(userAttributes.get("uuid").toString().replaceAll("[{}]","")))
                 .name(userAttributes.get(userNameAttributeName).toString())
                 .attributes(userAttributes)
                 .authorities(authorities)
                 .build();
         var requestDTO = objectMapper.convertValue(authUser, AuthRequestDTO.class);
-        log.info(requestDTO.toString());
         userServiceApi.createOrGetUser(requestDTO);
         return authUser;
     }
