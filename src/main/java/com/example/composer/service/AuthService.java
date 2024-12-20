@@ -1,4 +1,4 @@
-package com.example.composer.configuration;
+package com.example.composer.service;
 
 import api.UserServiceApi;
 import com.example.composer.model.AuthUser;
